@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<link rel="stylesheet" 
+  href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css"
+  integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"           
+  crossorigin="anonymous">
+
+<head>
+  <meta charset="utf-8">
+  <title>Al-qur'an </title>
+
+  <style>
+
+  </style>
+  <script src="https://code.jquery.com/jquery-3.5.0.js"></script>
+  
+</head>
+
+<body>
+
+  <a href="#" id="get-data"></a>
+  <div>
+    <div class="container text-center" >
+      <div class="row mt-3">
+        <div class="col-1 bg-warning text-light">
+          <div class="font-weight-bold" style="height: 50px;" > <P style="margin-top: 15px;">Nomor Surat</P></div>
+          <div id="nomor" class="p-3 mb-2 bg-secondary text-light" ></div>
+        </div>
+        <div class="col-4 bg-warning text-light" >
+          <div class="font-weight-bold"  style="height: 50px;"> <p style="margin-top: 15px;"> Daftar Surah</p></div>
+          <div id="show-data" class="p-3 mb-2 bg-secondary text-light"></div> 
+
+        </div>
+        <div class="col-7 overflow-auto bg-warning text-light" style="height: 800px;">
+          <div class="font-weight-bold"  style="height: 50px;" > <P style="margin-top: 15px;"> Daftar Ayat </P></div>
+          <div id="ayat" class="p-3 mb-2 bg-secondary text-light"></div> 
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</body>
+<script>
+  $(document).ready(() => {
+
+    const $showData = $('#show-data');
+    const $raw = $('pre');
+
+    // get json di endpoint
+    $.getJSON('https://api.alquran.cloud/v1/surah', (respon) => {
+      console.log(respon.code);
+      console.log(respon.status);
+
+      // mengatur ulang format respon dari json menjadi html
+      const head = '<tr><th></th></tr>';
+      const markup = respon.data
+        .map(item => `<tr><td class="surat" idayat="${item.number}" style="height:30px">
+                 ${item.name}
+            </td></tr>`)
+        .join('');
+
+
+        const nomor = respon.data
+        .map(item => `<tr><td class="surat" idayat="${item.number}" style="height:30px">
+                 ${item.number}
+            </td></tr>`)
+        .join('');
+
+      const list = $('<table />').html(head + markup);
+
+      // tampilkan di kolom ke dua
+      $('#show-data').html(list);
+      $('#nomor').html(nomor);
+
+
+      $('.surat').on('click', function (event) {
+        $(this).attr("idayat");
+        $.getJSON('https://api.alquran.cloud/v1/surah/' + $(this).attr("idayat"), (respon) => {
+          const ayat = respon.data.ayahs
+            .map(item => `<p>
+                (${item.numberInSurah}) ${item.text}
+            </p>`)
+            .join('');
+          $('#ayat').html(ayat);
+
+
+
+
+
+
+        });
+      });
+
+
+    });
+
+  });
+</script>
+
+</html>
